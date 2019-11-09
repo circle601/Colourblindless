@@ -27,9 +27,8 @@ var processor = {};
       return;
     }
     this.computeFrame();
-    let self = this;
     setTimeout(function() {
-        self.timerCallback();
+        processor.timerCallback();
       }, 0);
   };
 
@@ -45,7 +44,7 @@ if(navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
 		this.video.addEventListener('play', function() {
         self.width = video.videoWidth;
         self.height = video.videoHeight;
-        self.timerCallback();
+        processor.timerCallback();
       }, false);
 		
         video.play();

@@ -1,39 +1,67 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title><%= title %></title>
-    <link rel='stylesheet' href='/stylesheets/style.css' />
+<script type="text/javascript" src="http://chir.ag/projects/ntc/ntc.js"></script>
+
   </head>
   <body>
-    <h1><%= title %></h1>
 	
 	
 <video id="video" width="640" height="480" autoplay></video>
-<button id="snap">Snap Photo</button>
+<p id="colorbox"> HEllo </p>
+    
 <canvas id="canvas" width="640" height="480"></canvas>
-
-      <canvas id="c1" width="160" height="96"></canvas>
-      <canvas id="c2" width="160" height="96"></canvas>
 
 <script>
 
+  function rgbToHex(r, g, b) {
+    if (r > 255 || g > 255 || b > 255)
+        throw "Invalid color component";
+    return ((r << 16) | (g << 8) | b).toString(16);
+}
+  
+  
+  
 // Grab elements, create settings, etc.
 var video = document.getElementById('video');
+  var colorbox = document.getElementById('colorbox');
 var processor = {};
+var c1 = document.getElementById('canvas');
+var ctx1 = c1.getContext('2d');
 
-    var c1 = document.getElementById('c1');
-    var ctx1 = c1.getContext('2d');
-    var c2 = document.getElementById('c2');
-    var ctx2 = c2.getContext('2d');
+processor.computeFrame = function computeFrame() {
+    ctx1.drawImage(video, 0, 0, 640, 480);
+    
+  
+  var R = 0;
+  var G = 0;
+  var B = 0;
+    for (x = 0; x < 20; x++) {
+        for (y = 0; y < 20; y++) {
+  var p = ctx1.getImageData(310 + y, 230 + x, 1, 1).data;
+    R = R + p[0];
+    G = G + p[1];
+    B = B + p[2];
+      }
+    }
+  R = R / 400;
+  B = B / 400;
+  G = G / 400;
+  
+  var hex = "#" + ("000000" + rgbToHex(R, G, B)).slice(-6);
+   var n_match  = ntc.name(hex);
+   
+  colorbox.innerHTML  = n_match[1];
+  }
 
-
-
+  
   processor.timerCallback = function timerCallback() {
     processor.computeFrame();
     setTimeout(function() {
         processor.timerCallback();
       }, 0);
   };
+
 
 
 
@@ -44,33 +72,15 @@ if(navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
         //video.src = window.URL.createObjectURL(stream);
         video.srcObject = stream;
 		
-		this.video.addEventListener('play', function() {
-        self.width = video.videoWidth;
+       self.width = video.videoWidth;
         self.height = video.videoHeight;
         processor.timerCallback();
-      }, false);
-        video.play();
-    });
+      
+   
+  });
 }
 
 
-
-
-processor.computeFrame = function computeFrame() {
-    ctx1.drawImage(this.video, 0, 0, this.width, this.height);
-    let frame = ctx1.getImageData(0, 0, this.width, this.height);
-    let l = frame.data.length / 4;
-
-    for (let i = 0; i < l; i++) {
-      let r = frame.data[i * 4 + 0];
-      let g = frame.data[i * 4 + 1];
-      let b = frame.data[i * 4 + 2];
-      if (g > 100 && r > 100 && b < 43)
-        frame.data[i * 4 + 3] = 0;
-    }
-    ctx2.putImageData(frame, 0, 0);
-    return;
-  }
 
 
 

@@ -1,11 +1,11 @@
-#!C:\hackathon\node-v13.1.0-win-x64\node
+#!/usr/bin/env node
 
 /**
  * Module dependencies.
  */
 
 var app = require('../app');
-var debug = require('debug')('index:server');
+var debug = require('debug')('colourblindless:server');
 var http = require('http');
 
 /**
@@ -57,9 +57,6 @@ function onError(error) {
   if (error.syscall !== 'listen') {
     throw error;
   }
-
- console.error(error);
-
 
   var bind = typeof port === 'string'
     ? 'Pipe ' + port

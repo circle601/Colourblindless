@@ -12,12 +12,15 @@
 <button id="snap">Snap Photo</button>
 <canvas id="canvas" width="640" height="480"></canvas>
 
-
+      <canvas id="c1" width="160" height="96"></canvas>
+      <canvas id="c2" width="160" height="96"></canvas>
 
 <script>
 
 // Grab elements, create settings, etc.
 var video = document.getElementById('video');
+var processor;
+
 
 // Get access to the camera!
 if(navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
@@ -25,9 +28,48 @@ if(navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
     navigator.mediaDevices.getUserMedia({ video: true }).then(function(stream) {
         //video.src = window.URL.createObjectURL(stream);
         video.srcObject = stream;
+		
+		this.video.addEventListener('play', function() {
+        self.width = video.videoWidth;
+        self.height = video.videoHeight;
+        self.timerCallback();
+      }, false);
+		
         video.play();
     });
 }
+
+  processor.timerCallback = function timerCallback() {
+    if (this.video.paused || this.video.ended) {
+      return;
+    }
+    this.computeFrame();
+    let self = this;
+    setTimeout(function() {
+        self.timerCallback();
+      }, 0);
+  };
+
+
+processor.computeFrame = function computeFrame() {
+    this.ctx1.drawImage(this.video, 0, 0, this.width, this.height);
+    let frame = this.ctx1.getImageData(0, 0, this.width, this.height);
+    let l = frame.data.length / 4;
+
+    for (let i = 0; i < l; i++) {
+      let r = frame.data[i * 4 + 0];
+      let g = frame.data[i * 4 + 1];
+      let b = frame.data[i * 4 + 2];
+      if (g > 100 && r > 100 && b < 43)
+        frame.data[i * 4 + 3] = 0;
+    }
+    this.ctx2.putImageData(frame, 0, 0);
+    return;
+  }
+
+
+
+
 
 /* Legacy code below: getUserMedia 
 else if(navigator.getUserMedia) { // Standard

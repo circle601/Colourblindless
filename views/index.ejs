@@ -23,10 +23,7 @@ var processor = {};
 
 
   processor.timerCallback = function timerCallback() {
-    if (this.video.paused || this.video.ended) {
-      return;
-    }
-    this.computeFrame();
+    processor.computeFrame();
     setTimeout(function() {
         processor.timerCallback();
       }, 0);
@@ -46,7 +43,6 @@ if(navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
         self.height = video.videoHeight;
         processor.timerCallback();
       }, false);
-		
         video.play();
     });
 }
